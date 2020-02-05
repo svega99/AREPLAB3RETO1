@@ -17,54 +17,56 @@ public class HttpServer {
 	
 	
   public static void main(String[] args) throws IOException {
-   serverSocket = null;
-   try { 
-      serverSocket = new ServerSocket(35000);
-   } catch (IOException e) {
-      System.err.println("Could not listen on port: 35000.");
-      System.exit(1);
-   }
-   while(true) {
-   
-
-	   
-	   try {
-	       System.out.println("Listo para recibir ...");
-	       clientSocket = serverSocket.accept();
-	   } catch (IOException e) {
-	       System.err.println("Accept failed.");
-	       System.exit(1);
-	   }
-	   out = new PrintWriter(
-	                         clientSocket.getOutputStream(), true);
-	   in = new BufferedReader(
-	                         new InputStreamReader(clientSocket.getInputStream()));
-	   String inputLine, outputLine;
-	   
-	   StringBuilder stringBuilder = new StringBuilder();
-	   
-	   Pattern pattern = Pattern.compile("GET /([^\\s]+)");
-       Matcher matcher = null;
-	   
-	   while ((inputLine = in.readLine()) != null) {
-	      System.out.println("Recibí: " + inputLine);
-	      stringBuilder.append(inputLine);
-	      if (!in.ready()) {
-	    	  matcher = pattern.matcher(stringBuilder.toString());
-              if (matcher.find()) {
-                  String req = matcher.group().substring(5);
-                  System.out.println("VALUE: " + req);
-                  returnRequest(req);
-              }
-	    	  
-	    	  break; }
-	   }
 	  
-	    out.close(); 
-	    in.close(); 
-	    clientSocket.close(); 
-	    //serverSocket.close();
-   }
+	  
+	   serverSocket = null;
+	   try { 
+	      serverSocket = new ServerSocket(getPort());
+	   } catch (IOException e) {
+	      System.err.println("Could not listen on port: 35000.");
+	      System.exit(1);
+	   }
+	   while(true) {
+	   
+	
+		   
+		   try {
+		       System.out.println("Listo para recibir ...");
+		       clientSocket = serverSocket.accept();
+		   } catch (IOException e) {
+		       System.err.println("Accept failed.");
+		       System.exit(1);
+		   }
+		   out = new PrintWriter(
+		                         clientSocket.getOutputStream(), true);
+		   in = new BufferedReader(
+		                         new InputStreamReader(clientSocket.getInputStream()));
+		   String inputLine, outputLine;
+		   
+		   StringBuilder stringBuilder = new StringBuilder();
+		   
+		   Pattern pattern = Pattern.compile("GET /([^\\s]+)");
+	       Matcher matcher = null;
+		   
+		   while ((inputLine = in.readLine()) != null) {
+		      System.out.println("Recibí: " + inputLine);
+		      stringBuilder.append(inputLine);
+		      if (!in.ready()) {
+		    	  matcher = pattern.matcher(stringBuilder.toString());
+	              if (matcher.find()) {
+	                  String req = matcher.group().substring(5);
+	                  System.out.println("VALUE: " + req);
+	                  returnRequest(req);
+	              }
+		    	  
+		    	  break; }
+		   }
+		  
+		    out.close(); 
+		    in.close(); 
+		    clientSocket.close(); 
+		    //serverSocket.close();
+	   }
   }
   
   public static void returnRequest(String req) throws IOException {
@@ -79,7 +81,7 @@ public class HttpServer {
     	  path=path+"img/";
       }
       
-      
+      System.out.println(path+req);
       File file = new File(path+req);
       
       if (file.exists() && !file.isDirectory()) {
@@ -102,14 +104,14 @@ public class HttpServer {
 				binaryOut.close();
 	    	  
 	      }
-	      else {
+	      else {/*
 	    	  DataOutputStream binaryOut = new DataOutputStream(clientSocket.getOutputStream());
 				binaryOut.writeBytes("HTTP/1.0 200 OK\r\n");
 				binaryOut.writeBytes("Content-Type: text/html");
 				binaryOut.writeBytes("\r\n\r\n");
 				
-				binaryOut.close();
-	    	  
+				binaryOut.close();*/
+				  out.println("HTTP/1.1 200 \r\nContent-Type: text/html\r\n\r\n");
 		    	  BufferedReader br = new BufferedReader(new FileReader(file));
 	
 	              StringBuilder stringBuilder = new StringBuilder();
@@ -118,7 +120,7 @@ public class HttpServer {
 	                  stringBuilder.append(st);
 	              }
 	              out.println(stringBuilder.toString());
-				
+	              br.close();
 	      }
       }
       else {
@@ -127,6 +129,16 @@ public class HttpServer {
       }
 	  
   }
+  
+  static int getPort() {
+      if (System.getenv("PORT") != null) {
+          return Integer.parseInt(System.getenv("PORT"));
+      }        
+         
+      return 4567; //returns default port if heroku-port isn't set(i.e. on localhost)    }
+  }
+  
+  
   
   
 }
