@@ -6,7 +6,11 @@ import java.net.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.io.*;
-
+/**
+ * HTTP Server que recibe archivos
+ * 
+ * @author santiago.vega-r
+ */
 public class HttpServer {
 	static ServerSocket serverSocket = null;
 	
@@ -69,6 +73,12 @@ public class HttpServer {
 	   }
   }
   
+  /**
+     * Devuelve en la pagina la solicitud
+     *
+     * @param req archivo solicitado
+     * @throws IOException
+     */
   public static void returnRequest(String req) throws IOException {
 	  
 	  
